@@ -1,8 +1,6 @@
 ## User files
 tex_files/data/
-tex_files/data/**
 data_base/user_db/
-data_base/user_db/**
 *.pdf
 
 ## Core latex/pdflatex auxiliary files:
