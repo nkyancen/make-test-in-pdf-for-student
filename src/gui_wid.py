@@ -9,7 +9,7 @@ import workwithdb as ww
 def win_dis(par_name):
     dis_win = Toplevel(par_name)
     dis_win.title("Дисциплины")
-    dis_win.resizable(0, 0)
+    dis_win.resizable(None, None)
     dis_win.focus_force()
 
     dis_label = Label(dis_win, text='Дисциплины:', font=ww.other_font)
@@ -18,7 +18,7 @@ def win_dis(par_name):
 
     dis_list = Listbox(dis_win, height=8, width=25, selectmode=SINGLE, font=ww.other_font)
 
-    dis_tab = ww.dbout('discipline')
+    dis_tab = ww.out_from_database('discipline')
 
     for item in dis_tab:
         dis_list.insert(END, dis_tab[item])
@@ -28,7 +28,7 @@ def win_dis(par_name):
     dis_list_scroll = Scrollbar(dis_win, command=dis_list.yview)
     dis_list.config(yscrollcommand=dis_list_scroll.set)
 
-    dis_entry = Entry(dis_win, width=25, font=ww.other_font, justify=CENTER)
+    dis_entry = Entry(dis_win, width=25, font=ww.other_font, justify="center")
 
     dis_add_but = Button(dis_win, text='Добавить\nдисциплину', font=ww.other_font,
                          command=lambda lb=dis_list, en=dis_entry, dw=dis_win:
@@ -61,29 +61,29 @@ def dis_add(lst, en, rwin):
     if new_dis == '':
         tkbox.showwarning('Ошибка', 'Пустая строка', parent=rwin)
 
-    elif ww.find(ww.dbout('discipline'), [new_dis]):
+    elif ww.find(ww.out_from_database('discipline'), [new_dis]):
         tkbox.showwarning('Ошибка', 'Дисциплина "' + en.get() + '" уже есть', parent=rwin)
 
     else:
-        ww.dbins('discipline', (new_dis,))
+        ww.insert_to_database('discipline', (new_dis,))
         lst.insert(END, new_dis)
         tkbox.showinfo('Успешно', 'Дисциплина "' + en.get() + '" добавлена', parent=rwin)
 
 
 ## Удаление дисциплины
 def dis_del(lst, rwin):
-    tbl = ww.dbout('discipline')
+    tbl = ww.out_from_database('discipline')
 
     try:
         od_ind = lst.curselection()
         old_dis = lst.get(od_ind)
 
-        if ww.find_couple(ww.dbout('razdel'), ww.kval(tbl, list(old_dis))):
+        if ww.find_couple(ww.out_from_database('razdel'), ww.kval(tbl, list(old_dis))):
             tkbox.showwarning('Ошибка', 'Дисциплина "' + old_dis[0] + '" содержит разделы',
                               parent=rwin)
 
         else:
-            ww.dbdel('discipline', ('dis', ww.kval(tbl, [old_dis[0]])))
+            ww.delete_from_database('discipline', ('dis', ww.kval(tbl, [old_dis[0]])))
             lst.delete(od_ind)
             tkbox.showinfo('Успешно', 'Дисциплина "' + old_dis[0] + '" удалена', parent=rwin)
             lst.selection_set(END)
@@ -93,7 +93,7 @@ def dis_del(lst, rwin):
 
 
 ## Окно работы с разделами
-def win_razd(par_name):
+def win_section(par_name):
     raz_win = Toplevel(par_name)
     raz_win.title("Разделы")
     raz_win.resizable(0, 0)
@@ -108,8 +108,8 @@ def win_razd(par_name):
 
     raz_list = Listbox(raz_win, height=10, width=30, selectmode=SINGLE, font=ww.other_font)
 
-    dis_tab = ww.dbout('discipline')
-    raz_tab = ww.dbout('razdel')
+    dis_tab = ww.out_from_database('discipline')
+    raz_tab = ww.out_from_database('razdel')
 
     for item in raz_tab:
         raz_list.insert(END, [raz_tab[item][0], '-', dis_tab[raz_tab[item][1]]])
@@ -119,7 +119,7 @@ def win_razd(par_name):
     raz_list_scroll = Scrollbar(raz_win, command=raz_list.yview)
     raz_list.config(yscrollcommand=raz_list_scroll.set)
 
-    raz_entry = Entry(raz_win, width=25, font=ww.other_font, justify=CENTER)
+    raz_entry = Entry(raz_win, width=25, font=ww.other_font, justify="center")
 
     raz_dis_list = Listbox(raz_win, height=5, width=25, selectmode=SINGLE, font=ww.other_font)
 
@@ -162,7 +162,7 @@ def win_razd(par_name):
 
 ## Добавление раздела
 def raz_add(lst, en, rdlst, rwin):
-    dis_tab = ww.dbout('discipline')
+    dis_tab = ww.out_from_database('discipline')
 
     try:
         new_raz = [en.get(), ww.kval(dis_tab, list(rdlst.get(rdlst.curselection())))]
@@ -170,13 +170,13 @@ def raz_add(lst, en, rdlst, rwin):
         if new_raz[0] == '':
             tkbox.showwarning('Ошибка', 'Пустая строка', parent=rwin)
 
-        elif ww.find(ww.dbout('razdel'), new_raz):
+        elif ww.find(ww.out_from_database('razdel'), new_raz):
             tkbox.showwarning('Ошибка', 'Раздел "' + new_raz[0] + '" уже есть в дисциплине "' \
                               + dis_tab[new_raz[1]][0] + '"', parent=rwin)
 
         else:
-            ww.dbins('razdel', tuple(new_raz), '?, ?')
-            lst.insert(END, [new_raz[0], '-', ww.dbout('discipline')[new_raz[1]]])
+            ww.insert_to_database('razdel', tuple(new_raz), '?, ?')
+            lst.insert(END, [new_raz[0], '-', ww.out_from_database('discipline')[new_raz[1]]])
             tkbox.showinfo('Успешно', 'Раздел "' + new_raz[0] + '" добавлен в дисциплину "' \
                            + dis_tab[new_raz[1]][0] + '"', parent=rwin)
 
@@ -186,21 +186,22 @@ def raz_add(lst, en, rdlst, rwin):
 
 ## Удаление раздела
 def raz_del(lst, rwin):
-    tbl = ww.dbout('razdel')
-    dis_tab = ww.dbout('discipline')
+    tbl = ww.out_from_database('razdel')
+    dis_tab = ww.out_from_database('discipline')
     # or_ind = lst.curselection()
 
     try:
         or_ind = lst.curselection()
         old_raz = lst.get(or_ind)
 
-        if ww.find_couple(ww.dbout('problem'),
+        if ww.find_couple(ww.out_from_database('problem'),
                           ww.kval(tbl, [old_raz[0], ww.kval(dis_tab, list(old_raz[2]))])):
             tkbox.showwarning('Ошибка', 'Раздел "' + old_raz[0] + '" содержит задачи',
                               parent=rwin)
         else:
-            ww.dbdel('razdel', ('raz',
-                                ww.kval(tbl, [old_raz[0], ww.kval(ww.dbout('discipline'), list(old_raz[2]))])))
+            ww.delete_from_database('razdel', ('raz',
+                                               ww.kval(tbl, [old_raz[0],
+                                                             ww.kval(ww.out_from_database('discipline'), list(old_raz[2]))])))
             lst.delete(or_ind)
             tkbox.showinfo('Успешно', 'Раздел "' + old_raz[0] + '" удален из дисциплины "' + old_raz[2][0] + '"',
                            parent=rwin)
@@ -214,17 +215,18 @@ def raz_del(lst, rwin):
 def raz_prob(lst, pwin):
     try:
         raz = [lst.get(lst.curselection())[0],
-               ww.kval(ww.dbout('discipline'), list(lst.get(lst.curselection())[2]))]
-        raz_id = ww.kval(ww.dbout('razdel'), raz)
+               ww.kval(ww.out_from_database('discipline'), list(lst.get(lst.curselection())[2]))]
+        raz_id = ww.kval(ww.out_from_database('razdel'), raz)
 
         prob = Toplevel(pwin)
         prob.title('Задания')
         prob.geometry('+%d+%d' % (50, 120))
         prob.resizable(0, 0)
 
-        problem = ww.dbout('problem', ('prob_raz = ' + str(raz_id)))
+        problem = ww.out_from_database('problem', ('prob_raz = ' + str(raz_id)))
 
-        prob_label = Label(prob, text='Задания раздела "' + raz[0] + '" дисциплины "' + ww.dbout('discipline')[raz[1]][
+        prob_label = Label(prob, text='Задания раздела "' + raz[0] + '" дисциплины "' + ww.out_from_database(
+            'discipline')[raz[1]][
             0] + '"', font=ww.other_font)
 
         prob_list_width = ww.sw // 11
@@ -239,7 +241,7 @@ def raz_prob(lst, pwin):
         prob_list_scroll = Scrollbar(prob, command=prob_list.yview)
         prob_list.config(yscrollcommand=prob_list_scroll.set)
 
-        prob_list_xscroll = Scrollbar(prob, command=prob_list.xview, orient=HORIZONTAL)
+        prob_list_xscroll = Scrollbar(prob, command=prob_list.xview, orient="horizontal")
         prob_list.config(xscrollcommand=prob_list_xscroll.set)
 
         prob_quit_but = Button(prob, text='Закрыть', height=1, font=ww.other_font,
@@ -276,10 +278,10 @@ def raz_prob(lst, pwin):
 
 
 ## Добавляем задания в выбранный раздел
-def raz_add_prob(rid, pwin, lst):
-    apr = Toplevel(pwin)
+def raz_add_prob(rid, parent_window, lst):
+    apr = Toplevel(parent_window)
     apr.title('Добавление задания')
-    apr.resizable(0, 0)
+    apr.resizable(None, None)
 
     pra_quit_but = Button(apr, text='Закрыть', height=2, font=ww.other_font,
                           command=apr.destroy)
@@ -335,19 +337,19 @@ def add_prob(np):
         new_prob = (np[2].get(1.0, END)[0:-1], np[1], ww.kval(ww.types_of_problems, list(tp)))
 
         rwin = np[4]
-        praz = ww.dbout('razdel')[np[1]][0]
+        praz = ww.out_from_database('razdel')[np[1]][0]
         ##        print(new_prob)
         ##        print(ww.find(ww.dbout('problem'), list(new_prob)))
 
         if new_prob[0] == '':
             tkbox.showwarning('Ошибка', 'Введите текст задания', parent=rwin)
 
-        elif ww.find(ww.dbout('problem'), list(new_prob)):
+        elif ww.find(ww.out_from_database('problem'), list(new_prob)):
             tkbox.showwarning('Ошибка', 'Такое задание уже есть в разделе "' + praz + '"', parent=rwin)
 
         else:
             np[0].insert(END, [tp[1], '-', new_prob[0]])
-            ww.dbins('problem', new_prob, '?,?,?')
+            ww.insert_to_database('problem', new_prob, '?,?,?')
 
             ans_type = ['КО']
 
@@ -416,10 +418,10 @@ def add_prob(np):
 ## Добавляем ответы к вопросам с вариантами
 def add_answer(par_pr):
     ##    print(par_pr[2])
-    new_ans = (ww.kval(ww.dbout('problem'), par_pr[2]), par_pr[3].get(), par_pr[4].get(), par_pr[5].get(),
+    new_ans = (ww.kval(ww.out_from_database('problem'), par_pr[2]), par_pr[3].get(), par_pr[4].get(), par_pr[5].get(),
                par_pr[6].get(), par_pr[7].get(), par_pr[8].get())
     ##    print(new_ans)
-    ww.dbins('answers', new_ans, '?,?,?,?,?,?,?')
+    ww.insert_to_database('answers', new_ans, '?,?,?,?,?,?,?')
     par_pr[0].destroy()
     tkbox.showinfo('Успешно', 'Задание и варианты ответов добавлены в раздел "' + par_pr[1] + '"',
                    parent=par_pr[9])
@@ -427,8 +429,8 @@ def add_answer(par_pr):
 
 ## Удаляем задание из выбранного раздела
 def raz_del_prob(lst, rid, pwin):
-    tbl_prob = ww.dbout('problem')
-    tbl_ans = ww.dbout('answers')
+    tbl_prob = ww.out_from_database('problem')
+    tbl_ans = ww.out_from_database('answers')
 
     try:
         op_ind = lst.curselection()
@@ -439,14 +441,14 @@ def raz_del_prob(lst, rid, pwin):
 
         pid = ww.kval(tbl_prob, list(old_prob))
 
-        if ww.find_couple(ww.dbout('answers'), pid):
+        if ww.find_couple(ww.out_from_database('answers'), pid):
             for item in tbl_ans:
                 if pid in tbl_ans[item]:
                     old_ans = tbl_ans[item]
 
-            ww.dbdel('answers', ('ans', ww.kval(tbl_ans, old_ans)))
+            ww.delete_from_database('answers', ('ans', ww.kval(tbl_ans, old_ans)))
 
-        ww.dbdel('problem', ('prob', pid))
+        ww.delete_from_database('problem', ('prob', pid))
         lst.delete(op_ind)
 
         tkbox.showinfo('Успешно', 'Задание удалено', parent=pwin)
@@ -458,8 +460,8 @@ def raz_del_prob(lst, rid, pwin):
 
 ## Изменяем задание в выбранном разделе
 def raz_upd_prob(lst, rid, pwin):
-    tbl_prob = ww.dbout('problem')
-    tbl_ans = ww.dbout('answers')
+    tbl_prob = ww.out_from_database('problem')
+    tbl_ans = ww.out_from_database('answers')
 
     try:
         op_ind = lst.curselection()
@@ -475,7 +477,7 @@ def raz_upd_prob(lst, rid, pwin):
 
         old_ans = []
 
-        if ww.find_couple(ww.dbout('answers'), pid):
+        if ww.find_couple(ww.out_from_database('answers'), pid):
             for item in tbl_ans:
                 if pid in tbl_ans[item]:
                     old_ans = tbl_ans[item]
@@ -582,13 +584,13 @@ def raz_upd_prob(lst, rid, pwin):
 
 ## Изменяем задание
 def upd_prob(up):
-    tbl_prob = ww.dbout('problem')
+    tbl_prob = ww.out_from_database('problem')
 
     new_prob = up[1].get(1.0, END)[:-1]
     lst = up[3]
 
     if not ww.find_couple(tbl_prob, new_prob):
-        ww.dbupd('problem', ('prob_name', str(new_prob), 'prob', str(up[4])))
+        ww.database_update('problem', ('prob_name', str(new_prob), 'prob', str(up[4])))
         lst.delete(up[2])
         lst.insert(up[2], [ww.type_of_problem[tbl_prob[up[4]][2]], '-', new_prob])
 
@@ -597,7 +599,7 @@ def upd_prob(up):
 
 ## Изменяем варианты ответов
 def upd_ans(ua):
-    tbl_ans = ww.dbout('answers')
+    tbl_ans = ww.out_from_database('answers')
 
     ai = ua[1]
 
@@ -608,7 +610,7 @@ def upd_ans(ua):
     for item in ua[2:8]:
         if item.get() not in tbl_ans[ai]:
             temp = True
-            ww.dbupd('answers', ('ans_' + ww.trans(n, 0), item.get(), 'ans', str(ai)))
+            ww.database_update('answers', ('ans_' + ww.trans(n, 0), item.get(), 'ans', str(ai)))
         n += 1
 
     if temp:

@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
-from pexpect.screen import screen
 
-from DBc import UseDB
+from DBc import UseDatabase
 
-path_of_base = ''
+path_to_base = ''
 
-screenWeight = 1920
-screenHeight = 1080
+screen_weight = 1920
+screen_height = 1080
 
 main_font = 'serif 14'
 other_font = 'serif 11'
@@ -16,32 +15,32 @@ type_of_problem = {}
 
 
 ## Добавляем запись в таблицу БД
-def dbins(tab: str, ti: tuple, mask: str = '?') -> None:
-    with UseDB(path_of_base) as curs:
+def insert_to_database(tab: str, ti: tuple, mask: str = '?') -> None:
+    with UseDatabase(path_to_base) as curs:
         curs.execute('INSERT INTO ' + tab + ' VALUES (NULL,' + mask + ')', ti)
 
 
 ## Удаляем запись из таблицы БД
-def dbdel(tab: str, td: tuple) -> None:
+def delete_from_database(tab: str, td: tuple) -> None:
     request_to_delete = 'DELETE FROM ' + tab + ' WHERE %s_id = %s' % td
 
-    with UseDB(path_of_base) as currentBase:
+    with UseDatabase(path_to_base) as currentBase:
         currentBase.execute(request_to_delete)
 
 
 # Изменяем запись в таблице БД
-def dbupd(tab: str, tu: tuple) -> None:
+def database_update(tab: str, tu: tuple) -> None:
     sqlu = 'UPDATE ' + tab + ' SET %s = "%s" WHERE %s_id = %s' % tu
 
-    with UseDB(path_of_base) as curentBase:
+    with UseDatabase(path_to_base) as curentBase:
         curentBase.execute(sqlu)
 
 
 ## Выбираем записи из таблицы БД
-def dbout(tab: str, to: tuple = ()) -> dict:
+def out_from_database(tab: str, to: tuple = ()) -> dict:
     dic = {}
 
-    with UseDB(path_of_base) as curs:
+    with UseDatabase(path_to_base) as curs:
         if not to:
             sqlo = 'SELECT * FROM ' + tab
         else:
@@ -92,9 +91,6 @@ def trans(numb, n) -> str:
     numb = int(numb)
     name = str(numb)
 
-    # for item in range(n):
-    #     if numb // 10**(item+1) == 0:
-    #         name = '0' + name
     name.rjust(n, "0")
 
     name = name.replace('0', 'zero')

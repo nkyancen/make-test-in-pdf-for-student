@@ -3,10 +3,10 @@
 import sqlite3
 
 
-class UseDB:
+class UseDatabase:
 
-    def __init__(self, dataBase: str = 'TestVop.db') -> None:
-        self.pathOfBase = dataBase
+    def __init__(self, database: str = 'TestVop.db') -> None:
+        self.pathOfBase = database
 
     def __enter__(self) -> 'cursor':
         self.connectedBase = sqlite3.connect(self.pathOfBase)

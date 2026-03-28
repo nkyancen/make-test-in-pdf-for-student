@@ -16,7 +16,7 @@ def dis_choise(pwin):
 
     dc_list = Listbox(dc_win, height=8, width=25, selectmode=SINGLE, font=ww.other_font)
 
-    dc_tab = ww.dbout('discipline')
+    dc_tab = ww.out_from_database('discipline')
 
     for item in dc_tab:
         dc_list.insert(END, dc_tab[item])
@@ -41,7 +41,7 @@ def dis_choise(pwin):
 
 def raz_test_form(par_rt):
     lst = par_rt[2]
-    dis_tbl = ww.dbout('discipline')
+    dis_tbl = ww.out_from_database('discipline')
 
     try:
         dis_ch = [ww.kval(dis_tbl, lst.get(lst.curselection())), lst.get(lst.curselection())[0]]
@@ -56,7 +56,7 @@ def raz_test_form(par_rt):
 
         tf_raz_list = Listbox(tform, height=10, width=25, selectmode=MULTIPLE, font=ww.other_font)
 
-        raz_tab = ww.dbout('razdel', ('raz_dis = ' + str(dis_ch[0])))
+        raz_tab = ww.out_from_database('razdel', ('raz_dis = ' + str(dis_ch[0])))
 
         for item in raz_tab:
             tf_raz_list.insert(END, raz_tab[item][0])
@@ -109,17 +109,17 @@ def raz_test_form(par_rt):
         n = 0
 
         for item in raz_tab:
-            n += len(ww.dbout('problem', ('prob_raz = ' + str(item))))
+            n += len(ww.out_from_database('problem', ('prob_raz = ' + str(item))))
 
         ##    print(n)
         tf_all = (tform, tf_raz_list, 0, n, n, n, dis_ch)
 
         tf_raz_but = Button(tform, text='Сформировать\nтест', font=ww.other_font,
-                            command=lambda: raz_choise(tf_rt))
+                            command=lambda: raz_choice(tf_rt))
         tf_quit_but = Button(tform, text='Закрыть', font=ww.other_font, height=2,
                              command=tform.destroy)
         tf_araz_but = Button(tform, text='Все\nзадания', font=ww.other_font,
-                             command=lambda: raz_choise(tf_all))
+                             command=lambda: raz_choice(tf_all))
 
         tf_raz_label.grid(row=1, column=1, columnspan=2, pady=(10, 5))
 
@@ -149,9 +149,9 @@ def raz_test_form(par_rt):
         tkbox.showwarning('Ошибка', 'Выделите дисциплину в списке', parent=par_rt[1])
 
 
-def raz_choise(prt):
+def raz_choice(prt):
     lst = prt[1]
-    raz_tbl = ww.dbout('razdel')
+    raz_tbl = ww.out_from_database('razdel')
     raz_ind = lst.curselection()
 
     ##    dis_ch = prt[6]
@@ -205,7 +205,8 @@ def raz_choise(prt):
             tmp_dic = {}
             for tp in ww.type_of_problem:
                 temp = []
-                for elem in ww.dbout('problem', ('prob_raz = ' + str(tmp_rid) + ' AND prob_type = ' + str(tp))):
+                for elem in ww.out_from_database('problem',
+                                                 ('prob_raz = ' + str(tmp_rid) + ' AND prob_type = ' + str(tp))):
                     temp.append((elem))
                 tmp_dic[ww.type_of_problem[tp]] = temp
             prob_ch[raz_ch[-1]] = tmp_dic
@@ -219,8 +220,8 @@ def raz_choise(prt):
 
         datav += '}\n\n'
         tdata = '\n'
-        prob_tbl = ww.dbout('problem')
-        ans_tbl = ww.dbout('answers')
+        prob_tbl = ww.out_from_database('problem')
+        ans_tbl = ww.out_from_database('answers')
 
         for nv in range(nvar + 1):
             datav += '\n' + r'%% Вариант №' + str(nv + 1) + '\n\n'
@@ -330,15 +331,15 @@ def raz_choise(prt):
 
             tdata += r'\end{enumerate}' + '\n\n' + r'\cleardoublepage' + '\n\n\n'
 
-            with open('tex_files/datavop.tex', 'w', encoding='utf8') as dvfile:
+            with open('tex_files/data/datavop.tex', 'w', encoding='utf8') as dvfile:
                 print(datav, file=dvfile)
 
-            with open('tex_files/testdata.tex', 'w', encoding='utf8') as tdfile:
+            with open('tex_files/data/testdata.tex', 'w', encoding='utf8') as tdfile:
                 print(tdata, file=tdfile)
 
         ##        print(datav)
         ##        print(tdata)
 
-        os.system('pdflatex -synctex=1 -interaction=nonstopmode mktest.tex')
+        os.system('pdflatex -synctex=1 -interaction=nonstopmode tex_files/mktest.tex')
 
         os.system('xdg-open mktest.pdf')
